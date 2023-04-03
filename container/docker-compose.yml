@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+
+  ignite-manager:
+    build:
+      context: ..
+      dockerfile: container/Dockerfile
+    image: ignite-manager
+    container_name: ignite-manager
+    volumes:
+      - ..:/app

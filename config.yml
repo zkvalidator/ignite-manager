@@ -1,0 +1,24 @@
+chain:
+  name: example-chain
+  prefix: ex
+
+module:
+  name: example-module
+
+models:
+  - name: entity-name
+    type: list
+    attributes:
+      - field1:string
+      - field2:int
+    events: true
+    custom_files:
+      - custom_entity.go
+
+  - name: resource-name
+    type: list
+    attributes:
+      - owner:string
+      - name:string
+      - category:string
+      - value:int

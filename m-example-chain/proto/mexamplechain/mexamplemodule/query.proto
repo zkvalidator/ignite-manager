@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package mexamplechain.mexamplemodule;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "mexamplechain/mexamplemodule/params.proto";
+import "mexamplechain/mexamplemodule/entity_name.proto";
+
+option go_package = "m-example-chain/x/mexamplemodule/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  
+  // Parameters queries the parameters of the module.
+  rpc Params (QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/m-example-chain/mexamplemodule/params";
+  
+  }
+  
+  // Queries a list of EntityName items.
+  rpc EntityName    (QueryGetEntityNameRequest) returns (QueryGetEntityNameResponse) {
+    option (google.api.http).get = "/m-example-chain/mexamplemodule/entity_name/{id}";
+  
+  }
+  rpc EntityNameAll (QueryAllEntityNameRequest) returns (QueryAllEntityNameResponse) {
+    option (google.api.http).get = "/m-example-chain/mexamplemodule/entity_name";
+  
+  }
+}
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetEntityNameRequest {
+  uint64 id = 1;
+}
+
+message QueryGetEntityNameResponse {
+  EntityName EntityName = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllEntityNameRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllEntityNameResponse {
+  repeated EntityName                             EntityName = 1 [(gogoproto.nullable) = false];
+           cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+

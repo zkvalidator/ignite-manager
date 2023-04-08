@@ -60,7 +60,7 @@ def scaffold_models(config, chain_name):
     logging.debug(f"Scaffolding model '{model_name}'...")
     run_command(f"cd {chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
 
-    if "events" in model:
+    if "events" in model and model["events"] == True:
       apply_event_template(config, model, chain_name, template_env)
 
 def update_go_mod(chain_name):
@@ -96,7 +96,7 @@ def run_ignite_commands(chain_name):
 
 def apply_event_template(config, model, chain_name, template_env):
   target = f"{chain_name}/x/{config['module']['name']}/keeper/msg_server_{model['name']}.go"
-  template = template_env.get_template("event.go")
+  template = template_env.get_template("src/templates/event.go")
   rendered = template.render(model=model)
 
   with open(target, "a") as target_file:

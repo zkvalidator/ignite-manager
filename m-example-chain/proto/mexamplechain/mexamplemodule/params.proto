@@ -1,0 +1,12 @@
+syntax = "proto3";
+package mexamplechain.mexamplemodule;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "m-example-chain/x/mexamplemodule/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+}

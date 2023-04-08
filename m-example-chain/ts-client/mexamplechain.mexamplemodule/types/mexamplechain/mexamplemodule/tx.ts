@@ -1,0 +1,443 @@
+/* eslint-disable */
+import Long from "long";
+import _m0 from "protobufjs/minimal";
+
+export const protobufPackage = "mexamplechain.mexamplemodule";
+
+export interface MsgCreateEntityName {
+  creator: string;
+  field1: string;
+  field2: number;
+}
+
+export interface MsgCreateEntityNameResponse {
+  id: number;
+}
+
+export interface MsgUpdateEntityName {
+  creator: string;
+  id: number;
+  field1: string;
+  field2: number;
+}
+
+export interface MsgUpdateEntityNameResponse {
+}
+
+export interface MsgDeleteEntityName {
+  creator: string;
+  id: number;
+}
+
+export interface MsgDeleteEntityNameResponse {
+}
+
+function createBaseMsgCreateEntityName(): MsgCreateEntityName {
+  return { creator: "", field1: "", field2: 0 };
+}
+
+export const MsgCreateEntityName = {
+  encode(message: MsgCreateEntityName, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.creator !== "") {
+      writer.uint32(10).string(message.creator);
+    }
+    if (message.field1 !== "") {
+      writer.uint32(18).string(message.field1);
+    }
+    if (message.field2 !== 0) {
+      writer.uint32(24).int32(message.field2);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgCreateEntityName {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgCreateEntityName();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.creator = reader.string();
+          break;
+        case 2:
+          message.field1 = reader.string();
+          break;
+        case 3:
+          message.field2 = reader.int32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgCreateEntityName {
+    return {
+      creator: isSet(object.creator) ? String(object.creator) : "",
+      field1: isSet(object.field1) ? String(object.field1) : "",
+      field2: isSet(object.field2) ? Number(object.field2) : 0,
+    };
+  },
+
+  toJSON(message: MsgCreateEntityName): unknown {
+    const obj: any = {};
+    message.creator !== undefined && (obj.creator = message.creator);
+    message.field1 !== undefined && (obj.field1 = message.field1);
+    message.field2 !== undefined && (obj.field2 = Math.round(message.field2));
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgCreateEntityName>, I>>(object: I): MsgCreateEntityName {
+    const message = createBaseMsgCreateEntityName();
+    message.creator = object.creator ?? "";
+    message.field1 = object.field1 ?? "";
+    message.field2 = object.field2 ?? 0;
+    return message;
+  },
+};
+
+function createBaseMsgCreateEntityNameResponse(): MsgCreateEntityNameResponse {
+  return { id: 0 };
+}
+
+export const MsgCreateEntityNameResponse = {
+  encode(message: MsgCreateEntityNameResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.id !== 0) {
+      writer.uint32(8).uint64(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgCreateEntityNameResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgCreateEntityNameResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = longToNumber(reader.uint64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgCreateEntityNameResponse {
+    return { id: isSet(object.id) ? Number(object.id) : 0 };
+  },
+
+  toJSON(message: MsgCreateEntityNameResponse): unknown {
+    const obj: any = {};
+    message.id !== undefined && (obj.id = Math.round(message.id));
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgCreateEntityNameResponse>, I>>(object: I): MsgCreateEntityNameResponse {
+    const message = createBaseMsgCreateEntityNameResponse();
+    message.id = object.id ?? 0;
+    return message;
+  },
+};
+
+function createBaseMsgUpdateEntityName(): MsgUpdateEntityName {
+  return { creator: "", id: 0, field1: "", field2: 0 };
+}
+
+export const MsgUpdateEntityName = {
+  encode(message: MsgUpdateEntityName, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.creator !== "") {
+      writer.uint32(10).string(message.creator);
+    }
+    if (message.id !== 0) {
+      writer.uint32(16).uint64(message.id);
+    }
+    if (message.field1 !== "") {
+      writer.uint32(26).string(message.field1);
+    }
+    if (message.field2 !== 0) {
+      writer.uint32(32).int32(message.field2);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateEntityName {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgUpdateEntityName();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.creator = reader.string();
+          break;
+        case 2:
+          message.id = longToNumber(reader.uint64() as Long);
+          break;
+        case 3:
+          message.field1 = reader.string();
+          break;
+        case 4:
+          message.field2 = reader.int32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgUpdateEntityName {
+    return {
+      creator: isSet(object.creator) ? String(object.creator) : "",
+      id: isSet(object.id) ? Number(object.id) : 0,
+      field1: isSet(object.field1) ? String(object.field1) : "",
+      field2: isSet(object.field2) ? Number(object.field2) : 0,
+    };
+  },
+
+  toJSON(message: MsgUpdateEntityName): unknown {
+    const obj: any = {};
+    message.creator !== undefined && (obj.creator = message.creator);
+    message.id !== undefined && (obj.id = Math.round(message.id));
+    message.field1 !== undefined && (obj.field1 = message.field1);
+    message.field2 !== undefined && (obj.field2 = Math.round(message.field2));
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateEntityName>, I>>(object: I): MsgUpdateEntityName {
+    const message = createBaseMsgUpdateEntityName();
+    message.creator = object.creator ?? "";
+    message.id = object.id ?? 0;
+    message.field1 = object.field1 ?? "";
+    message.field2 = object.field2 ?? 0;
+    return message;
+  },
+};
+
+function createBaseMsgUpdateEntityNameResponse(): MsgUpdateEntityNameResponse {
+  return {};
+}
+
+export const MsgUpdateEntityNameResponse = {
+  encode(_: MsgUpdateEntityNameResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateEntityNameResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgUpdateEntityNameResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): MsgUpdateEntityNameResponse {
+    return {};
+  },
+
+  toJSON(_: MsgUpdateEntityNameResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateEntityNameResponse>, I>>(_: I): MsgUpdateEntityNameResponse {
+    const message = createBaseMsgUpdateEntityNameResponse();
+    return message;
+  },
+};
+
+function createBaseMsgDeleteEntityName(): MsgDeleteEntityName {
+  return { creator: "", id: 0 };
+}
+
+export const MsgDeleteEntityName = {
+  encode(message: MsgDeleteEntityName, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.creator !== "") {
+      writer.uint32(10).string(message.creator);
+    }
+    if (message.id !== 0) {
+      writer.uint32(16).uint64(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteEntityName {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgDeleteEntityName();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.creator = reader.string();
+          break;
+        case 2:
+          message.id = longToNumber(reader.uint64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgDeleteEntityName {
+    return {
+      creator: isSet(object.creator) ? String(object.creator) : "",
+      id: isSet(object.id) ? Number(object.id) : 0,
+    };
+  },
+
+  toJSON(message: MsgDeleteEntityName): unknown {
+    const obj: any = {};
+    message.creator !== undefined && (obj.creator = message.creator);
+    message.id !== undefined && (obj.id = Math.round(message.id));
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgDeleteEntityName>, I>>(object: I): MsgDeleteEntityName {
+    const message = createBaseMsgDeleteEntityName();
+    message.creator = object.creator ?? "";
+    message.id = object.id ?? 0;
+    return message;
+  },
+};
+
+function createBaseMsgDeleteEntityNameResponse(): MsgDeleteEntityNameResponse {
+  return {};
+}
+
+export const MsgDeleteEntityNameResponse = {
+  encode(_: MsgDeleteEntityNameResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteEntityNameResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgDeleteEntityNameResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): MsgDeleteEntityNameResponse {
+    return {};
+  },
+
+  toJSON(_: MsgDeleteEntityNameResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgDeleteEntityNameResponse>, I>>(_: I): MsgDeleteEntityNameResponse {
+    const message = createBaseMsgDeleteEntityNameResponse();
+    return message;
+  },
+};
+
+/** Msg defines the Msg service. */
+export interface Msg {
+  CreateEntityName(request: MsgCreateEntityName): Promise<MsgCreateEntityNameResponse>;
+  UpdateEntityName(request: MsgUpdateEntityName): Promise<MsgUpdateEntityNameResponse>;
+  DeleteEntityName(request: MsgDeleteEntityName): Promise<MsgDeleteEntityNameResponse>;
+}
+
+export class MsgClientImpl implements Msg {
+  private readonly rpc: Rpc;
+  constructor(rpc: Rpc) {
+    this.rpc = rpc;
+    this.CreateEntityName = this.CreateEntityName.bind(this);
+    this.UpdateEntityName = this.UpdateEntityName.bind(this);
+    this.DeleteEntityName = this.DeleteEntityName.bind(this);
+  }
+  CreateEntityName(request: MsgCreateEntityName): Promise<MsgCreateEntityNameResponse> {
+    const data = MsgCreateEntityName.encode(request).finish();
+    const promise = this.rpc.request("mexamplechain.mexamplemodule.Msg", "CreateEntityName", data);
+    return promise.then((data) => MsgCreateEntityNameResponse.decode(new _m0.Reader(data)));
+  }
+
+  UpdateEntityName(request: MsgUpdateEntityName): Promise<MsgUpdateEntityNameResponse> {
+    const data = MsgUpdateEntityName.encode(request).finish();
+    const promise = this.rpc.request("mexamplechain.mexamplemodule.Msg", "UpdateEntityName", data);
+    return promise.then((data) => MsgUpdateEntityNameResponse.decode(new _m0.Reader(data)));
+  }
+
+  DeleteEntityName(request: MsgDeleteEntityName): Promise<MsgDeleteEntityNameResponse> {
+    const data = MsgDeleteEntityName.encode(request).finish();
+    const promise = this.rpc.request("mexamplechain.mexamplemodule.Msg", "DeleteEntityName", data);
+    return promise.then((data) => MsgDeleteEntityNameResponse.decode(new _m0.Reader(data)));
+  }
+}
+
+interface Rpc {
+  request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
+}
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+declare var global: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") {
+    return globalThis;
+  }
+  if (typeof self !== "undefined") {
+    return self;
+  }
+  if (typeof window !== "undefined") {
+    return window;
+  }
+  if (typeof global !== "undefined") {
+    return global;
+  }
+  throw "Unable to locate global object";
+})();
+
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(long: Long): number {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  return long.toNumber();
+}
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}
+
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
+}

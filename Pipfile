@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pyyaml = "*"
-jinja2 = "*"
+case-converter = "*"
 
 [dev-packages]
 

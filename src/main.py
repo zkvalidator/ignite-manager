@@ -2,9 +2,10 @@ import os
 import sys
 import subprocess
 from pathlib import Path
-import yaml
-from jinja2 import FileSystemLoader, Environment
 import logging
+
+import yaml
+from caseconverter import pascalcase, camelcase
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -48,8 +49,6 @@ def scaffold_module(config, chain_name):
   run_command(f"cd {chain_name} && ignite scaffold module --yes {module_name} --dep bank,staking")
 
 def scaffold_models(config, chain_name):
-  template_loader = FileSystemLoader(searchpath="./src/templates/")
-  template_env = Environment(loader=template_loader)
 
   for model in config["models"]:
     model_type = model["type"]
@@ -57,11 +56,11 @@ def scaffold_models(config, chain_name):
     model_attributes = " ".join(model["attributes"])
 
     logging.debug(f"Scaffolding model '{model_name}'...")
-    # TODO
+    ############## TODO
     run_command(f"cd {chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
 
     if "events" in model and model["events"] == True:
-      apply_event_template(config, model, chain_name, template_env)
+      apply_event_template(config, model, chain_name)
 
 def update_go_mod(chain_name):
   replacements = [
@@ -94,13 +93,34 @@ def run_ignite_commands(chain_name):
   logging.debug(f"Running ignite commands: {chain_name}...")
   run_command(f"cd {chain_name} && ignite chain build")
 
-def apply_event_template(config, model, chain_name, template_env):
-  target = f"{chain_name}/x/{config['module']['name']}/keeper/msg_server_{model['name']}.go"
-  template = template_env.get_template("event.go")
-  rendered = template.render(model=model)
+def apply_event_template(config, model, chain_name):
 
+  target = f"{chain_name}/x/{config['module']['name']}/keeper/msg_server_{model['name']}.go"
+  search = f"""
+	id := k.Append{pascalcase(model['name'])}(
+		ctx,
+		{camelcase(model['name'])},
+	)"""
+  insert = f"""
+	ctx.EventManager().EmitTypedEvent(&types.EventCreate{pascalcase(model['name'])}{{
+		Id: id,
+	}})"""
+
+  with open(target, "r") as target_file:
+    content = target_file.read()
+  content = content.replace(search, f'{search}\n{insert}')
+  with open(target, "w") as target_file:
+    target_file.write(content)
+
+  append = f"""
+message EventCreate{pascalcase(model['name'])} {{
+	uint64 id = 1;
+}}
+"""
+
+  target = f"{chain_name}/proto/{config['chain']['name']}/{config['module']['name']}/{model['name']}.proto"
   with open(target, "a") as target_file:
-    target_file.write(rendered)
+    target_file.write(append)
 
 def main():
   config_file = "build.yml"

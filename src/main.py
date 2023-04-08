@@ -42,6 +42,8 @@ def scaffold_chain(config):
   chain_prefix = config["chain"]["prefix"]
   logging.debug(f"Scaffolding chain '{chain_name}'...")
   run_command(f"ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
+  with open(f"{chain_name}/.gitignore", "w") as f:
+    f.write("*\n")
 
 def scaffold_module(config, chain_name):
   module_name = config["module"]["name"]

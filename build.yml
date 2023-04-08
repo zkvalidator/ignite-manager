@@ -1,0 +1,27 @@
+ignite:
+  config: !include config.yml
+
+chain:
+  name: examplechain
+  prefix: mex
+
+module:
+  name: examplemodule
+
+models:
+  - name: entity_name
+    type: list
+    attributes:
+      - field1:string
+      - field2:int
+    events: true
+    custom_files:
+      - custom_entity.go
+
+  - name: resource_name
+    type: list
+    attributes:
+      - owner:string
+      - name:string
+      - category:string
+      - value:int

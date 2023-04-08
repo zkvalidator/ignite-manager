@@ -1,0 +1,7 @@
+syntax = "proto3";
+package examplechain.examplemodule;
+
+option go_package = "example-chain/x/examplemodule/types";
+
+// Msg defines the Msg service.
+service Msg {}

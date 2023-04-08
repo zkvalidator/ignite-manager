@@ -1,24 +1,33 @@
-chain:
-  name: example-chain
-  prefix: ex
+version: 1
 
-module:
-  name: example-module
+accounts:
+  - name: alice
+    coins: ["20000token", "200000000stake"]
+    mnemonic: winter blur imitate this open palace reward steel local noodle believe into evil other rebuild ready fuel someone body capital review mixture absurd seminar
+  - name: bob
+    coins: ["10000token", "100000000stake"]
+    mnemonic: mammal artist elbow chaos oak gym practice oblige local decrease fetch boat inner same artist veteran catalog cannon fat forest tail boat must observe
 
-models:
-  - name: entity-name
-    type: list
-    attributes:
-      - field1:string
-      - field2:int
-    events: true
-    custom_files:
-      - custom_entity.go
+validators:
+  - name: alice
+    bonded: "100000000stake"
 
-  - name: resource-name
-    type: list
-    attributes:
-      - owner:string
-      - name:string
-      - category:string
-      - value:int
+init:
+  config:
+    api:
+      enable: true
+      swagger: false
+      address: "tcp://0.0.0.0:1317"
+      max-open-connections: 1000
+
+client:
+  openapi:
+    path: "docs/static/openapi.yml"
+  typescript:
+    path: "ts-client"
+  vuex:
+    path: "vue/src/store"
+
+faucet:
+  name: alice
+  coins: ["5token", "100000stake"]

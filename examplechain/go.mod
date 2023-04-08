@@ -1,4 +1,4 @@
-module m-example-chain
+module examplechain
 
 go 1.19
 

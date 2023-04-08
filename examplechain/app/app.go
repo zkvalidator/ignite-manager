@@ -105,13 +105,13 @@ import (
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-	appparams "m-example-chain/app/params"
-	"m-example-chain/docs"
+	appparams "examplechain/app/params"
+	"examplechain/docs"
 )
 
 const (
 	AccountAddressPrefix = "mex"
-	Name                 = "m-example-chain"
+	Name                 = "examplechain"
 )
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"m-example-chain/app"
+	"examplechain/app"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"

@@ -48,7 +48,7 @@ def scaffold_module(config, chain_name):
   run_command(f"cd {chain_name} && ignite scaffold module --yes {module_name} --dep bank,staking")
 
 def scaffold_models(config, chain_name):
-  template_loader = FileSystemLoader(searchpath="./templates/")
+  template_loader = FileSystemLoader(searchpath="./src/templates/")
   template_env = Environment(loader=template_loader)
 
   for model in config["models"]:
@@ -57,6 +57,7 @@ def scaffold_models(config, chain_name):
     model_attributes = " ".join(model["attributes"])
 
     logging.debug(f"Scaffolding model '{model_name}'...")
+    # TODO
     run_command(f"cd {chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
 
     if "events" in model and model["events"] == True:
@@ -95,7 +96,7 @@ def run_ignite_commands(chain_name):
 
 def apply_event_template(config, model, chain_name, template_env):
   target = f"{chain_name}/x/{config['module']['name']}/keeper/msg_server_{model['name']}.go"
-  template = template_env.get_template("src/templates/event.go")
+  template = template_env.get_template("event.go")
   rendered = template.render(model=model)
 
   with open(target, "a") as target_file:
@@ -110,6 +111,7 @@ def main():
   config = load_config(config_file)
 
   chain_name = config["chain"]["name"]
+
   if os.path.exists(chain_name):
     logging.debug(f"Removing old chain: {chain_name}...")
     run_command(f"rm -rf {chain_name}")
@@ -117,6 +119,7 @@ def main():
   move_and_replace_config(chain_name, config)
   update_go_mod(chain_name)
   scaffold_module(config, chain_name)
+
   scaffold_models(config, chain_name)
   run_ignite_commands(chain_name)
 

@@ -35,8 +35,8 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	// this line is used by starport scaffolding # root/moduleImport
 
-	"m-example-chain/app"
-	appparams "m-example-chain/app/params"
+	"examplechain/app"
+	appparams "examplechain/app/params"
 )
 
 // NewRootCmd creates a new root command for a Cosmos SDK application
@@ -54,7 +54,7 @@ func NewRootCmd() (*cobra.Command, appparams.EncodingConfig) {
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name + "d",
-		Short: "Start mexamplechain node",
+		Short: "Start examplechain node",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())

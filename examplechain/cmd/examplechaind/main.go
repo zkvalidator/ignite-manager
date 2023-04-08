@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"m-example-chain/app"
-	"m-example-chain/cmd/m-example-chaind/cmd"
+	"examplechain/app"
+	"examplechain/cmd/examplechaind/cmd"
 )
 
 func main() {

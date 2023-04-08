@@ -4,9 +4,13 @@ import subprocess
 from pathlib import Path
 import yaml
 from jinja2 import FileSystemLoader, Environment
+import shutil
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 def load_config(config_file):
-  print(f"Loading configuration from '{config_file}'...")
+  logging.debug(f"Loading configuration from '{config_file}'...")
   with open(config_file, "r") as f:
     return yaml.safe_load(f)
 
@@ -14,21 +18,21 @@ def run_command(command):
   process = subprocess.Popen(command, shell=True)
   process.wait()
   if process.returncode != 0:
-    print(f"Error: '{command}' failed with return code {process.returncode}")
+    logging.debug(f"Error: '{command}' failed with return code {process.returncode}")
     sys.exit(1)
 
 def scaffold_chain(config):
   chain_name = config["chain"]["name"]
   chain_prefix = config["chain"]["prefix"]
 
-  print(f"Scaffolding chain '{chain_name}'...")
+  logging.debug(f"Scaffolding chain '{chain_name}'...")
 
   run_command(f"ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
   return chain_name
 
 def scaffold_module(config, chain_name):
   module_name = config["module"]["name"]
-  print(f"Scaffolding module '{module_name}'...")
+  logging.debug(f"Scaffolding module '{module_name}'...")
   run_command(f"cd {chain_name} && ignite scaffold module --yes {module_name} --dep bank,staking")
 
 def scaffold_models(config, chain_name):
@@ -40,7 +44,7 @@ def scaffold_models(config, chain_name):
     model_name = model["name"]
     model_attributes = " ".join(model["attributes"])
 
-    print(f"Scaffolding model '{model_name}'...")
+    logging.debug(f"Scaffolding model '{model_name}'...")
     run_command(f"cd {chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
 
     if "events" in model:
@@ -53,7 +57,7 @@ def update_go_mod(chain_name):
   ]
 
   go_mod_path = f"{chain_name}/go.mod"
-  print(f"Updating go.mod: {go_mod_path}...")
+  logging.debug(f"Updating go.mod: {go_mod_path}...")
 
   with open(go_mod_path, "r") as go_mod_file:
     go_mod_content = go_mod_file.read()
@@ -64,16 +68,16 @@ def update_go_mod(chain_name):
   with open(go_mod_path, "w") as go_mod_file:
     go_mod_file.write(go_mod_content)
 
-  print(f"Running go mod tidy: {chain_name}...")
+  logging.debug(f"Running go mod tidy: {chain_name}...")
   run_command(f"cd {chain_name} && go mod tidy")
 
 def move_and_replace_config(chain_name):
-  print(f"Moving and replacing config: {chain_name}/config.yml")
+  logging.debug(f"Moving and replacing config: {chain_name}/config.yml")
   os.remove(f"{chain_name}/config.yml")
   shutil.copy("config.yml", f"{chain_name}/config.yml")
 
 def run_ignite_commands(chain_name):
-  print(f"Running ignite commands: {chain_name}...")
+  logging.debug(f"Running ignite commands: {chain_name}...")
   run_command(f"cd {chain_name} && ignite chain build")
 
 def apply_event_template(config, model, chain_name, template_env):
@@ -87,7 +91,7 @@ def apply_event_template(config, model, chain_name, template_env):
 def main():
   config_file = "config.yml"
   if not os.path.exists(config_file):
-    print(f"Error: Configuration file '{config_file}' not found.")
+    logging.debug(f"Error: Configuration file '{config_file}' not found.")
     sys.exit(1)
 
   config = load_config(config_file)
@@ -100,6 +104,6 @@ def main():
   run_ignite_commands(chain_name)
 
 if __name__ == "__main__":
-  print('Scaffolding chain...')
+  logging.debug('Scaffolding chain...')
   main()
-  print('Done!')
+  logging.debug('Done!')

@@ -41,7 +41,6 @@ def scaffold_chain(config):
   chain_prefix = config["chain"]["prefix"]
   logging.debug(f"Scaffolding chain '{chain_name}'...")
   run_command(f"ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
-  return chain_name
 
 def scaffold_module(config, chain_name):
   module_name = config["module"]["name"]
@@ -110,7 +109,11 @@ def main():
 
   config = load_config(config_file)
 
-  chain_name = scaffold_chain(config)
+  chain_name = config["chain"]["name"]
+  if os.path.exists(chain_name):
+    logging.debug(f"Removing old chain: {chain_name}...")
+    run_command(f"rm -rf {chain_name}")
+  scaffold_chain(config)
   move_and_replace_config(chain_name, config)
   update_go_mod(chain_name)
   scaffold_module(config, chain_name)

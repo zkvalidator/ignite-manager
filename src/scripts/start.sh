@@ -4,7 +4,13 @@ DAEMON="$1"
 
 NAMESPACE_ID=$(openssl rand -hex 8)
 echo "namespace: $NAMESPACE_ID"
-DA_BLOCK_HEIGHT=$(curl http://0.0.0.0:26650/block | jq -r '.result.block.header.height')
+
+DA_BLOCK_HEIGHT=""
+while [ -z "$DA_BLOCK_HEIGHT" ] || [ "$DA_BLOCK_HEIGHT" == "null" ] || [ "$DA_BLOCK_HEIGHT" -lt 2 ]; do
+  echo "waiting for block height..."
+  sleep 1
+  DA_BLOCK_HEIGHT=$(curl -s http://0.0.0.0:26650/block | jq -r '.result.block.header.height')
+done
 echo "block height: $DA_BLOCK_HEIGHT"
 
 $DAEMON start \

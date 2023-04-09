@@ -114,7 +114,6 @@ def start(config, chain_name):
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
       logging.info(f"Starting rollup: {chain_name}...")
       run_command(f"src/scripts/start.sh {daemon}")
-  return
 
 def apply_event_template(module_name, model_name, chain_name):
 
@@ -159,7 +158,7 @@ def parse_args():
     "-r",
     "--rescaffold",
     help="Rescaffold the chain",
-    default=True,
+    default=False,
   )
 
   parser.add_argument(

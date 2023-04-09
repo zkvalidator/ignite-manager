@@ -13,6 +13,8 @@ RUN curl -fsSL get.docker.com | bash
 
 RUN curl https://get.ignite.com/cli! | bash
 
+RUN apt install -y jq
+
 WORKDIR /app
 
 ENTRYPOINT [ "container/entrypoint.sh" ]

@@ -50,24 +50,28 @@ def scaffold_chain(config):
     run_command(f"rm -rf {chain_name}")
 
   logging.info(f"Scaffolding chain '{chain_name}'...")
-  run_command(f"ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
-  # with open(f"{chain_name}/.gitignore", "w") as f:
-  #   f.write("*\n")
+  run_command(f"cd build && ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
 
 def switch_framework(config, chain_name):
   if config["ignite"]["framework"]["type"] == "rollkit":
     logging.info(f"Switching to rollkit framework: {chain_name}...")
-    run_command(f"""cd {chain_name} \
-      && go mod edit -replace github.com/cosmos/cosmos-sdk=github.com/rollkit/cosmos-sdk@{config["ignite"]["framework"]["versions"]["cosmos-sdk"]} \
-      && go mod edit -replace github.com/tendermint/tendermint=github.com/celestiaorg/tendermint@{config["ignite"]["framework"]["versions"]["tendermint"]} \
+    for key, value in config["ignite"]["framework"]["versions"].items():
+      run_command(f"cd build/{chain_name} && go mod edit -replace {key}={value}")
+    run_command(f"""cd build/{chain_name} \
       && go mod tidy \
       && go mod download \
     """)
 
-def scaffold_module(config, chain_name):
-  module_name = config["module"]["name"]
-  logging.info(f"Scaffolding module '{module_name}'...")
-  run_command(f"cd {chain_name} && ignite scaffold module --yes {module_name} --dep bank,staking")
+def scaffold_modules(config, chain_name):
+  for module in config["modules"]:
+    module_name = module["name"]
+    module_deps = ",".join(module["deps"])
+    logging.info(f"Scaffolding module '{module_name}'...")
+    run_command(f"cd build/{chain_name} && ignite scaffold module --yes {module_name} --dep {module_deps}")
+
+  # module_name = config["module"]["name"]
+  # logging.info(f"Scaffolding module '{module_name}'...")
+  # run_command(f"cd build/{chain_name} && ignite scaffold module --yes {module_name} --dep bank,staking")
 
 def scaffold_models(config, chain_name):
 
@@ -77,7 +81,7 @@ def scaffold_models(config, chain_name):
     model_attributes = " ".join(model["attributes"])
 
     logging.info(f"Scaffolding model '{model_name}'...")
-    run_command(f"cd {chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
+    run_command(f"cd build/{chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
 
     if "events" in model and model["events"] == True:
       apply_event_template(config, model, chain_name)
@@ -101,7 +105,7 @@ def update_go_mod(chain_name):
     go_mod_file.write(go_mod_content)
 
   logging.info(f"Running go mod tidy: {chain_name}...")
-  run_command(f"cd {chain_name} && go mod tidy")
+  run_command(f"cd build/{chain_name} && go mod tidy")
 
 def move_and_replace_config(chain_name, config):
   logging.info(f"Moving and replacing config: {chain_name}/config.yml")
@@ -111,11 +115,11 @@ def move_and_replace_config(chain_name, config):
 
 def build(chain_name):
   logging.info(f"Building chain: {chain_name}...")
-  run_command(f"cd {chain_name} && ignite chain build")
+  run_command(f"cd build/{chain_name} && ignite chain build")
 
 def start(config, chain_name):
 
-  daemon = f"/root/go/bin/{chain_name}d"
+  daemon = f"/go/bin/{chain_name}d"
   chain_id = config["manager"]["start"]["chain_id"]
   validator_name = config["manager"]["start"]["validator_name"]
   key_name = config["manager"]["start"]["key_name"]
@@ -208,14 +212,14 @@ def main():
 
   chain_name = config["chain"]["name"]
 
-  if options.rescaffold:
+  if options.rescaffold or not os.path.exists(f"build/{chain_name}"):
     scaffold_chain(config)
     switch_framework(config, chain_name)
     move_and_replace_config(chain_name, config)
     # update_go_mod(chain_name)
-    scaffold_module(config, chain_name)
+    scaffold_modules(config, chain_name)
     scaffold_models(config, chain_name)
-  build(chain_name)
+    build(chain_name)
 
   run_command("echo $PATH")
   run_command("which examplechaind")

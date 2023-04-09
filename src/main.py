@@ -45,9 +45,9 @@ def scaffold_chain(config):
   chain_name = config["chain"]["name"]
   chain_prefix = config["chain"]["prefix"]
 
-  if os.path.exists(chain_name):
-    logging.warn(f"Removing old chain: {chain_name}...")
-    run_command(f"rm -rf {chain_name}")
+  if os.path.exists(f"build/{chain_name}"):
+    logging.warning(f"Removing old chain: build/{chain_name}...")
+    run_command(f"rm -rf build/{chain_name}")
 
   logging.info(f"Scaffolding chain '{chain_name}'...")
   run_command(f"cd build && ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
@@ -108,9 +108,9 @@ def update_go_mod(chain_name):
   run_command(f"cd build/{chain_name} && go mod tidy")
 
 def move_and_replace_config(chain_name, config):
-  logging.info(f"Moving and replacing config: {chain_name}/config.yml")
-  os.remove(f"{chain_name}/config.yml")
-  with open(f"{chain_name}/config.yml", "w") as f:
+  logging.info(f"Moving and replacing config: build/{chain_name}/config.yml")
+  os.remove(f"build/{chain_name}/config.yml")
+  with open(f"build/{chain_name}/config.yml", "w") as f:
     yaml.dump(config["ignite"]["config"], f)
 
 def build(chain_name):
@@ -184,7 +184,7 @@ def parse_args():
     "-r",
     "--rescaffold",
     help="Rescaffold the chain",
-    default=False,
+    default=True,
   )
 
   parser.add_argument(

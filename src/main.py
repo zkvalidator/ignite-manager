@@ -41,8 +41,14 @@ def run_command(command):
     sys.exit(1)
 
 def scaffold_chain(config):
+
   chain_name = config["chain"]["name"]
   chain_prefix = config["chain"]["prefix"]
+
+  if os.path.exists(chain_name):
+    logging.warn(f"Removing old chain: {chain_name}...")
+    run_command(f"rm -rf {chain_name}")
+
   logging.info(f"Scaffolding chain '{chain_name}'...")
   run_command(f"ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
   # with open(f"{chain_name}/.gitignore", "w") as f:
@@ -103,14 +109,17 @@ def move_and_replace_config(chain_name, config):
   with open(f"{chain_name}/config.yml", "w") as f:
     yaml.dump(config["ignite"]["config"], f)
 
-def start(config, chain_name):
+def build(chain_name):
   logging.info(f"Building chain: {chain_name}...")
   run_command(f"cd {chain_name} && ignite chain build")
 
+def start(config, chain_name):
+
   daemon = f"/root/go/bin/{chain_name}d"
-  chain_id = chain_name
-  validator_name = chain_name
-  key_name = chain_name
+  chain_id = config["manager"]["start"]["chain_id"]
+  validator_name = config["manager"]["start"]["validator_name"]
+  key_name = config["manager"]["start"]["key_name"]
+  global options
 
   if options.erase:
     logging.info(f"Erasing chain data: {chain_name}...")
@@ -118,14 +127,14 @@ def start(config, chain_name):
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml down")
     run_command(f"rm -rf ~/.{chain_name}")
     if config["ignite"]["framework"]["type"] == "rollkit":
-      run_command(f"scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
+      run_command(f"src/scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
 
   if options.start:
     if config["ignite"]["framework"]["type"] == "rollkit":
       logging.info("Starting Celestia node...")
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
       logging.info(f"Starting rollup: {chain_name}...")
-      run_command(f"scripts/start.sh {daemon}")
+      run_command(f"src/scripts/start.sh {daemon}")
   return
 
 def apply_event_template(config, model, chain_name):
@@ -157,9 +166,7 @@ message EventCreate{pascalcase(model['name'])} {{
   with open(target, "a") as target_file:
     target_file.write(append)
 
-options = None
-
-def main():
+def parse_args():
   parser = argparse.ArgumentParser(description="Ignite Manager Script")
 
   parser.add_argument(
@@ -170,13 +177,12 @@ def main():
   )
 
   parser.add_argument(
-    "-s",
-    "--start",
-    help="Start the chain",
-    default=True,
+    "-r",
+    "--rescaffold",
+    help="Rescaffold the chain",
+    default=False,
   )
 
-  # erase data
   parser.add_argument(
     "-e",
     "--erase",
@@ -184,23 +190,35 @@ def main():
     default=True,
   )
 
+  parser.add_argument(
+    "-s",
+    "--start",
+    help="Start the chain",
+    default=True,
+  )
+
   options = parser.parse_args()
+  return options
+
+def main():
+  global options
+  options = parse_args()
   config_file = options.config
   config = load_config(config_file)
 
   chain_name = config["chain"]["name"]
 
-  if os.path.exists(chain_name):
-    logging.warn(f"Removing old chain: {chain_name}...")
-    run_command(f"rm -rf {chain_name}")
+  if options.rescaffold:
+    scaffold_chain(config)
+    switch_framework(config, chain_name)
+    move_and_replace_config(chain_name, config)
+    # update_go_mod(chain_name)
+    scaffold_module(config, chain_name)
+    scaffold_models(config, chain_name)
+  build(chain_name)
 
-  scaffold_chain(config)
-  switch_framework(config, chain_name)
-  move_and_replace_config(chain_name, config)
-  # update_go_mod(chain_name)
-  scaffold_module(config, chain_name)
-
-  scaffold_models(config, chain_name)
+  run_command("echo $PATH")
+  run_command("which examplechaind")
   start(config, chain_name)
 
 if __name__ == "__main__":

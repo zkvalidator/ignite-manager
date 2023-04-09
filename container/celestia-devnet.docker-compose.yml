@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+
+  celestia-devnet:
+    container_name: celestia-devnet
+    # image: ghcr.io/celestiaorg/local-celestia-devnet:main
+    image: celestia-local-devnet
+    ports:
+      - "26650:26657"
+      - "26659:26659"

@@ -9,8 +9,9 @@ services:
     image: ignite-manager
     container_name: ignite-manager
     volumes:
-      - ..:/app
       - /var/run/docker.sock:/var/run/docker.sock
+      - ..:/app
+      - ../go_root:/go
     environment:
       - CONFIG_FILE
     network_mode: host

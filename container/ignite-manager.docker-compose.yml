@@ -5,7 +5,7 @@ services:
   ignite-manager:
     build:
       context: ..
-      dockerfile: container/Dockerfile
+      dockerfile: container/ignite-manager.dockerfile
     image: ignite-manager
     container_name: ignite-manager
     volumes:

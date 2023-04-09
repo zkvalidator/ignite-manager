@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 import logging
 import argparse
+import json
 
 import yaml
 from caseconverter import pascalcase, camelcase
@@ -80,41 +81,6 @@ def scaffold_modules(config, chain_name):
       if "events" in model and model["events"] == True:
         apply_event_template(module_name, model_name, chain_name)
 
-def move_and_replace_config(chain_name, config):
-  logging.info(f"Moving and replacing config: build/{chain_name}/config.yml")
-  os.remove(f"build/{chain_name}/config.yml")
-  with open(f"build/{chain_name}/config.yml", "w") as f:
-    yaml.dump(config["ignite"]["config"], f)
-
-def build(chain_name):
-  logging.info(f"Building chain: {chain_name}...")
-  run_command(f"cd build/{chain_name} && ignite chain build")
-
-def start(config, chain_name):
-
-  daemon = f"/go/bin/{chain_name}d"
-  chain_id = config["manager"]["start"]["chain_id"]
-  validator_name = config["manager"]["start"]["validator_name"]
-  key_name = config["manager"]["start"]["key_name"]
-  global options
-
-  if options.erase:
-    if config["ignite"]["framework"]["type"] == "rollkit":
-      logging.info("Stopping Celestia node...")
-      run_command("docker compose --file container/celestia-devnet.docker-compose.yml down")
-    logging.info(f"Erasing chain data: {chain_name}...")
-    run_command(f"rm -rf ~/.{chain_name}")
-    if config["ignite"]["framework"]["type"] == "rollkit":
-      logging.info(f"Initializing chain: {chain_name}...")
-      run_command(f"src/scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
-
-  if options.start:
-    if config["ignite"]["framework"]["type"] == "rollkit":
-      logging.info("Starting Celestia node...")
-      run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
-      logging.info(f"Starting rollup: {chain_name}...")
-      run_command(f"src/scripts/start.sh {daemon}")
-
 def apply_event_template(module_name, model_name, chain_name):
 
   target = f"build/{chain_name}/x/{module_name}/keeper/msg_server_{model_name}.go"
@@ -143,6 +109,71 @@ message EventCreate{pascalcase(model_name)} {{
   target = f"build/{chain_name}/proto/{chain_name}/{module_name}/{model_name}.proto"
   with open(target, "a") as target_file:
     target_file.write(append)
+
+def move_and_replace_config(chain_name, config):
+  logging.info(f"Moving and replacing config: build/{chain_name}/config.yml")
+  os.remove(f"build/{chain_name}/config.yml")
+  with open(f"build/{chain_name}/config.yml", "w") as f:
+    yaml.dump(config["ignite"]["config"], f)
+
+def build(chain_name):
+  logging.info(f"Building chain: {chain_name}...")
+  run_command(f"cd build/{chain_name} && ignite chain build")
+
+def start_explorer(config, chain_name):
+  chain = {
+    "chain_name": chain_name,
+    "coingecko": "",
+    "api": [f"http://localhost:1317"],
+    "rpc": [f"http://localhost:26657"],
+    "sdk_version": "0.46.7",
+    "coin_type": "118",
+    "min_tx_fee": "800",
+    "addr_prefix": config["chain"]["prefix"],
+    "logo": "https://dl.airtable.com/.attachments/e54f814bba8c0f9af8a3056020210de0/2d1155fb/cosmos-hub.svg",
+    "snapshot_provider": "",
+    "assets": []
+  }
+  for token in config["manager"]["tokens"]:
+    chain["assets"].append({
+      "base": f"u{token['symbol']}",
+      "symbol": token["symbol"].upper(),
+      "exponent": "6",
+      "coingecko_id": "",
+      "logo": "https://dl.airtable.com/.attachments/e54f814bba8c0f9af8a3056020210de0/2d1155fb/cosmos-hub.svg"
+    })
+
+  with open(f"build/pingpub.json", "w") as f:
+    json.dump(chain, f, indent=2)
+
+  # run_command("pwd")
+  # run_command("ls -la build/pingpub.json")
+  run_command(f"docker compose --file container/pingpub.docker-compose.yml up --build -d")
+
+def start(config, chain_name):
+
+  daemon = f"/go/bin/{chain_name}d"
+  chain_id = config["manager"]["start"]["chain_id"]
+  validator_name = config["manager"]["start"]["validator_name"]
+  key_name = config["manager"]["start"]["key_name"]
+  global options
+
+  if options.erase:
+    if config["ignite"]["framework"]["type"] == "rollkit":
+      logging.info("Stopping Celestia node...")
+      run_command("docker compose --file container/celestia-devnet.docker-compose.yml down")
+    logging.info(f"Erasing chain data: {chain_name}...")
+    run_command(f"rm -rf ~/.{chain_name}")
+    if config["ignite"]["framework"]["type"] == "rollkit":
+      logging.info(f"Initializing chain: {chain_name}...")
+      run_command(f"src/scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
+
+  if options.start:
+    if config["ignite"]["framework"]["type"] == "rollkit":
+      logging.info("Starting Celestia node...")
+      run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
+      logging.info(f"Starting rollup: {chain_name}...")
+      run_command(f"src/scripts/start.sh {daemon}")
 
 def parse_args():
   parser = argparse.ArgumentParser(description="Ignite Manager Script")
@@ -175,6 +206,13 @@ def parse_args():
     default=True,
   )
 
+  parser.add_argument(
+    "-x",
+    "--explorer",
+    help="Start the explorer",
+    default=True,
+  )
+
   options = parser.parse_args()
   return options
 
@@ -193,8 +231,9 @@ def main():
     scaffold_modules(config, chain_name)
     build(chain_name)
 
-  run_command("echo $PATH")
-  run_command("which examplechaind")
+  if options.explorer:
+    start_explorer(config, chain_name)
+
   start(config, chain_name)
 
 if __name__ == "__main__":

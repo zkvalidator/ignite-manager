@@ -15,6 +15,8 @@ manager:
     chain_id: examplechain-0
     validator_name: examplevalidator
     key_name: examplevalidator
+  tokens:
+    - symbol: examplesym
 
 chain:
   name: examplechain

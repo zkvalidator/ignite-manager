@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+
+  explorer:
+    container_name: explorer
+    image: explorer
+    build:
+      context: ..
+      dockerfile: container/pingpub.dockerfile
+    network_mode: host
+    # volumes:
+    #   - ../build/pingpub.json:/app/src/chains/mainnet/test.json

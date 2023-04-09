@@ -147,7 +147,7 @@ def main():
     logging.debug(f"Removing old chain: {chain_name}...")
     run_command(f"rm -rf {chain_name}")
   scaffold_chain(config)
-  switch_framework(config)
+  switch_framework(config, chain_name)
   move_and_replace_config(chain_name, config)
   # update_go_mod(chain_name)
   scaffold_module(config, chain_name)

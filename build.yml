@@ -8,7 +8,7 @@ ignite:
 
 chain:
   name: examplechain
-  prefix: mex
+  prefix: ex
 
 module:
   name: examplemodule

@@ -1,60 +1,69 @@
-# Ignite Scaffolding Tool
+# Ignite Manager
 
-This project provides a simple and extensible Python-based tool to automate the scaffolding process for Tendermint and Cosmos SDK chains using the Ignite framework. The tool reads a YAML configuration file to scaffold the chain, module, and models, and it supports event templates and custom .go files.
+Ignite Manager is a project that automates the process of scaffolding, building, and configuring blockchain applications using the Ignite framework. It reads a configuration file and generates the necessary files and structure for your blockchain application.
 
-## Features
+## Table of Contents
 
-- Chain and module scaffolding based on YAML configuration
-- Model scaffolding with support for event templates
-- Custom .go file integration
-- Easy-to-use CLI
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [build.yml](#buildyml)
+  - [config.yml](#configyml)
+- [Usage](#usage)
+- [License](#license)
 
-## Prerequisites
+## Requirements
 
-- Python 3.6 or later
-- Ignite CLI installed and configured
+- Docker
+- Python 3.6 or higher
 
 ## Installation
 
 1. Clone the repository:
 
-```bash
-git clone https://github.com/yourusername/ignite-scaffolding-tool.git
-cd ignite-scaffolding-tool
-```
+   ```
+   git clone https://github.com/yourusername/ignite-manager.git
+   ```
 
-2. (Optional) Set up a virtual environment to isolate the dependencies:
+2. Change the current directory to the project root:
 
-```bash
-python -m venv venv
-source venv/bin/activate  # For Windows, use `venv\Scripts\activate`
-```
+   ```
+   cd ignite-manager
+   ```
 
-3. Install the required dependencies:
+3. Build the Docker image:
 
-```bash
-pip install -r requirements.txt
-```
+   ```
+   docker build -t ignite-manager .
+   ```
 
-## Usage
+## Configuration
 
-1. Edit the `config.yml` file to define your chain, module, and models. You can also specify event templates and custom .go files.
+The project uses two main configuration files: `build.yml` and `config.yml`.
 
-The `config.yml` file is used to define your chain, module, and models, as well as specify event templates and custom .go files. The file is structured into sections that provide options for customization.
+### build.yml
 
-Here's a generic example of the `config.yml` file:
+`build.yml` is the main configuration file that defines the structure of your blockchain application. It contains information about the chain, modules, and models. Here's an example of a `build.yml` file:
 
 ```yaml
+ignite:
+  config: !include config.yml
+  framework:
+    type: rollkit
+    versions:
+      cosmos-sdk: v0.46.7-rollkit-v0.7.2-no-fraud-proofs
+      tendermint: v0.34.22-0.20221202214355-3605c597500d
+
 chain:
-  name: mychain
-  prefix: myp
+  name: examplechain
+  prefix: mex
 
 module:
-  name: mymodule
+  name: examplemodule
 
 models:
-  - type: list
-    name: entity
+  - name: entity_name
+    type: list
     attributes:
       - field1:string
       - field2:int
@@ -62,58 +71,108 @@ models:
     custom_files:
       - custom_entity.go
 
-  - type: list
-    name: resource
+  - name: resource_name
+    type: list
     attributes:
       - owner:string
       - name:string
       - category:string
       - value:int
-
-# Add more models here
 ```
 
-### YAML Options
+Here's a brief explanation of the configuration options:
 
-#### Chain
+- `ignite`: Contains configurations related to the Ignite framework.
+  - `config`: Includes the `config.yml` file.
+  - `framework`: Specifies the framework type and versions.
+    - `type`: The framework type, e.g., "rollkit".
+    - `versions`: Specifies the versions of the required dependencies, e.g., "cosmos-sdk" and "tendermint".
+- `chain`: Contains configurations related to the blockchain.
+  - `name`: The name of the blockchain.
+  - `prefix`: The address prefix for the blockchain.
+- `module`: Contains configurations related to the module.
+  - `name`: The name of the module.
+- `models`: A list of models to be generated.
+  - `name`: The name of the model.
+  - `type`: The type of the model, e.g., "list".
+  - `attributes`: A list of attributes for the model.
+  - `events`: If set to `true`, events will be generated for the model.
+  - `custom_files`: A list of custom files to be included in the model.
 
-- `name` (string): The name of your chain. This name will be used by the Ignite CLI when scaffolding the chain.
-- `prefix` (string): The address prefix for your chain.
+### config.yml
 
-#### Module
+`config.yml` is the secondary configuration file that contains information about accounts, validators, and other configurations. Here's an example of a `config.yml` file:
 
-- `name` (string): The name of your module. This name will be used by the Ignite CLI when scaffolding the module.
+```yaml
+version: 1
 
-#### Models
+accounts:
+  - name: alice
+    coins: ["20000token", "200000000stake"]
+    mnemonic: winter blur imitate this open palace reward steel local noodle believe into evil other rebuild ready fuel someone body capital review mixture absurd seminar
 
-A list of model objects, where each model object has the following keys:
+validators:
+  - name: alice
+    bonded: "100000000stake"
 
-- `type` (string): The type of the model. Supported types are `list`, `map`, and `single`.
-- `name` (string): The name of the model.
-- `attributes` (list of strings): A list of attributes for the model in the format `name:type`. Supported types include `string`, `int`, `bool`, `array`, and others.
-- `events` (boolean, optional): If `true`, the scaffolding tool will apply the event template to the model. Default is `false`.
-- `custom_files` (list of strings, optional): A list of custom .go files to be integrated into the scaffolded chain. The files should be placed in the project folder.
+init:
+  config:
+    api:
+      enable: true
+      swagger: false
+      address: "tcp://0.0.0.0:1317"
+      max-open-connections: 1000
 
-### Adding More Models
+client:
+  openapi:
+    path: "docs/static/openapi.yml"
+  typescript:
+    path: "ts-client"
+  vuex:
+    path: "vue/src/store"
 
-You can add more models to the `models` list in the `config.yml` file. Simply follow the structure of the existing model objects and provide the necessary keys and values for each new model.
-
-Remember to update the `scaffold.py` tool and create any required templates or custom .go files as needed to support the new models.
-
-2. Run the scaffolding tool:
-
-```bash
-python scaffold.py
+faucet:
+  name: alice
+  coins: ["5token", "100000stake"]
 ```
 
-The tool will scaffold the chain, module, and models according to the configuration in `config.yml`. It will also apply event templates and integrate custom .go files as specified.
+Here's a brief explanation of the configuration options:
 
-## Customization
+- `version`: The version of the configuration file.
+- `accounts`: A list of accounts to be created.
+  - `name`: The name of the account.
+  - `coins`: A list of coins to be assigned to the account.
+  - `mnemonic`: The mnemonic of the account.
+- `validators`: A list of validators to be created.
+  - `name`: The name of the validator.
+  - `bonded`: The number of bonded tokens for the validator.
+- `init`: Contains initialization configurations.
+  - `config`: Contains API and client configurations.
+    - `api`: Contains API configurations.
+      - `enable`: If set to `true`, the API will be enabled.
+      - `swagger`: If set to `true`, the Swagger UI will be enabled.
+      - `address`: The address to bind the API.
+      - `max-open-connections`: The maximum number of open connections for the API.
+    - `client`: Contains client configurations.
+      - `openapi`: Specifies the path for the OpenAPI documentation.
+      - `typescript`: Specifies the path for the TypeScript client.
+      - `vuex`: Specifies the path for the Vuex store.
+- `faucet`: Contains faucet configurations.
+  - `name`: The name of the account to be used as a faucet.
+  - `coins`: A list of coins to be assigned to the faucet.
 
-To customize the event templates, edit the `templates/event_template.go` file. You can use Jinja2 template syntax to dynamically generate the contents based on the model configuration.
+## Usage
 
-To add custom .go files, create the files in your project folder and list them under the "custom_files" key in the `config.yml` file for the corresponding model. The tool will copy the custom .go files to the appropriate locations in the scaffolded chain.
+1. Update the `build.yml` and `config.yml` files according to your desired blockchain structure and configurations.
+
+2. Run the `run.sh` script to start the Ignite Manager:
+
+   ```
+   ./run.sh
+   ```
+
+3. The script will build your blockchain application based on the provided configurations.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+[MIT](LICENSE)

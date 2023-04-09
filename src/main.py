@@ -3,6 +3,7 @@ import sys
 import subprocess
 from pathlib import Path
 import logging
+import argparse
 
 import yaml
 from caseconverter import pascalcase, camelcase
@@ -10,21 +11,23 @@ from caseconverter import pascalcase, camelcase
 logging.basicConfig(level=logging.DEBUG)
 
 def load_config(config_file):
-  class Loader(yaml.SafeLoader):
 
+  class Loader(yaml.SafeLoader):
     def __init__(self, stream):
       self._root = os.path.split(stream.name)[0]
       super(Loader, self).__init__(stream)
-
     def include(self, node):
       filename = os.path.join(self._root, self.construct_scalar(node))
       logging.debug(f"Loading included file: {filename}, root: {self._root}, node: {node}")
       with open(filename, 'r') as f:
         return yaml.load(f, Loader)
-
   Loader.add_constructor('!include', Loader.include)
 
+  if not os.path.exists(config_file):
+    logging.error(f"Error: Configuration file '{config_file}' not found.")
+    sys.exit(1)
   logging.info(f"Loading configuration from '{config_file}'...")
+
   with open(config_file, "r") as f:
     config = yaml.load(f, Loader=Loader)
     logging.debug(f"Configuration loaded: {config}")
@@ -134,18 +137,25 @@ message EventCreate{pascalcase(model['name'])} {{
     target_file.write(append)
 
 def main():
-  config_file = "build.yml"
-  if not os.path.exists(config_file):
-    logging.error(f"Error: Configuration file '{config_file}' not found.")
-    sys.exit(1)
+  parser = argparse.ArgumentParser(description="Ignite Manager Script")
+  parser.add_argument(
+    "-c",
+    "--config",
+    metavar="CONFIG_FILE",
+    help="Path to the configuration file",
+    default="build.yml",
+  )
+
+  args = parser.parse_args()
+  config_file = args.config
 
   config = load_config(config_file)
-
   chain_name = config["chain"]["name"]
 
   if os.path.exists(chain_name):
     logging.warn(f"Removing old chain: {chain_name}...")
     run_command(f"rm -rf {chain_name}")
+
   scaffold_chain(config)
   switch_framework(config, chain_name)
   move_and_replace_config(chain_name, config)

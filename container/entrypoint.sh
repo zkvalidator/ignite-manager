@@ -6,4 +6,4 @@ echo "installing depedencies..."
 pipenv install
 
 echo "building..."
-pipenv run python3 src/main.py
+pipenv run python3 src/main.py -c "${CONFIG_FILE}"

@@ -10,3 +10,5 @@ services:
     container_name: ignite-manager
     volumes:
       - ..:/app
+    environment:
+      - CONFIG_FILE

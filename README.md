@@ -15,14 +15,13 @@ Ignite Manager is a project that automates the process of scaffolding, building,
 ## Requirements
 
 - Docker
-- Python 3.6 or higher
 
 ## Installation
 
 1. Clone the repository:
 
    ```
-   git clone https://github.com/yourusername/ignite-manager.git
+   git clone https://github.com/zkvalidator/ignite-manager.git
    ```
 
 2. Change the current directory to the project root:
@@ -31,10 +30,10 @@ Ignite Manager is a project that automates the process of scaffolding, building,
    cd ignite-manager
    ```
 
-3. Build the Docker image:
+3. Build and start the Docker image:
 
    ```
-   docker build -t ignite-manager .
+   ./run.sh
    ```
 
 ## Configuration
@@ -101,7 +100,7 @@ Here's a brief explanation of the configuration options:
 
 ### config.yml
 
-`config.yml` is the secondary configuration file that contains information about accounts, validators, and other configurations. Here's an example of a `config.yml` file:
+`config.yml` is [Ignite's configuration file (ref)](https://docs.ignite.com/references/config) that contains information about accounts, validators, and other configurations. Here's an example of a `config.yml` file:
 
 ```yaml
 version: 1

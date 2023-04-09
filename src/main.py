@@ -139,7 +139,7 @@ message EventCreate{pascalcase(model_name)} {{
 }}
 """
 
-  target = f"{chain_name}/proto/{chain_name}/{module_name}/{model_name}.proto"
+  target = f"build/{chain_name}/proto/{chain_name}/{module_name}/{model_name}.proto"
   with open(target, "a") as target_file:
     target_file.write(append)
 

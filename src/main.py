@@ -103,9 +103,30 @@ def move_and_replace_config(chain_name, config):
   with open(f"{chain_name}/config.yml", "w") as f:
     yaml.dump(config["ignite"]["config"], f)
 
-def run_ignite_commands(chain_name):
-  logging.info(f"Running ignite commands: {chain_name}...")
+def start(config, chain_name):
+  logging.info(f"Building chain: {chain_name}...")
   run_command(f"cd {chain_name} && ignite chain build")
+
+  daemon = f"/root/go/bin/{chain_name}d"
+  chain_id = chain_name
+  validator_name = chain_name
+  key_name = chain_name
+
+  if options.erase:
+    logging.info(f"Erasing chain data: {chain_name}...")
+    if config["ignite"]["framework"]["type"] == "rollkit":
+      run_command("docker compose --file container/celestia-devnet.docker-compose.yml down")
+    run_command(f"rm -rf ~/.{chain_name}")
+    if config["ignite"]["framework"]["type"] == "rollkit":
+      run_command(f"scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
+
+  if options.start:
+    if config["ignite"]["framework"]["type"] == "rollkit":
+      logging.info("Starting Celestia node...")
+      run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
+      logging.info(f"Starting rollup: {chain_name}...")
+      run_command(f"scripts/start.sh {daemon}")
+  return
 
 def apply_event_template(config, model, chain_name):
 
@@ -136,20 +157,37 @@ message EventCreate{pascalcase(model['name'])} {{
   with open(target, "a") as target_file:
     target_file.write(append)
 
+options = None
+
 def main():
   parser = argparse.ArgumentParser(description="Ignite Manager Script")
+
   parser.add_argument(
     "-c",
     "--config",
-    metavar="CONFIG_FILE",
     help="Path to the configuration file",
     default="build.yml",
   )
 
-  args = parser.parse_args()
-  config_file = args.config
+  parser.add_argument(
+    "-s",
+    "--start",
+    help="Start the chain",
+    default=True,
+  )
 
+  # erase data
+  parser.add_argument(
+    "-e",
+    "--erase",
+    help="Erase the chain data",
+    default=True,
+  )
+
+  options = parser.parse_args()
+  config_file = options.config
   config = load_config(config_file)
+
   chain_name = config["chain"]["name"]
 
   if os.path.exists(chain_name):
@@ -163,7 +201,7 @@ def main():
   scaffold_module(config, chain_name)
 
   scaffold_models(config, chain_name)
-  run_ignite_commands(chain_name)
+  start(config, chain_name)
 
 if __name__ == "__main__":
   logging.info('Starting...')

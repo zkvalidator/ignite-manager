@@ -9,6 +9,8 @@ RUN apt-get install -y \
 RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 
+RUN curl -fsSL get.docker.com | bash
+
 RUN curl https://get.ignite.com/cli! | bash
 
 WORKDIR /app

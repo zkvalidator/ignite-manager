@@ -20,4 +20,3 @@ $DAEMON keys add $KEY_NAME --keyring-backend test
 $DAEMON add-genesis-account $KEY_NAME $TOKEN_AMOUNT --keyring-backend test
 $DAEMON gentx $KEY_NAME $STAKING_AMOUNT --chain-id $CHAIN_ID --keyring-backend test
 $DAEMON collect-gentxs
-exec start.sh

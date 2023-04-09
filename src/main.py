@@ -99,11 +99,13 @@ def start(config, chain_name):
   global options
 
   if options.erase:
-    logging.info(f"Erasing chain data: {chain_name}...")
     if config["ignite"]["framework"]["type"] == "rollkit":
+      logging.info("Stopping Celestia node...")
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml down")
+    logging.info(f"Erasing chain data: {chain_name}...")
     run_command(f"rm -rf ~/.{chain_name}")
     if config["ignite"]["framework"]["type"] == "rollkit":
+      logging.info(f"Initializing chain: {chain_name}...")
       run_command(f"src/scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
 
   if options.start:

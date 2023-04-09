@@ -116,7 +116,7 @@ def start(config, chain_name):
 
 def apply_event_template(module_name, model_name, chain_name):
 
-  target = f"{chain_name}/x/{module_name}/keeper/msg_server_{model_name}.go"
+  target = f"build/{chain_name}/x/{module_name}/keeper/msg_server_{model_name}.go"
   search = f"""
 	id := k.Append{pascalcase(model_name)}(
 		ctx,

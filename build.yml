@@ -1,5 +1,10 @@
 ignite:
   config: !include config.yml
+  framework:
+    type: rollkit
+    versions:
+      cosmos-sdk: v0.46.7-rollkit-v0.7.2-no-fraud-proofs
+      tendermint: v0.34.22-0.20221202214355-3605c597500d
 
 chain:
   name: examplechain

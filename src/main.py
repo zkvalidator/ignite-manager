@@ -45,6 +45,16 @@ def scaffold_chain(config):
   with open(f"{chain_name}/.gitignore", "w") as f:
     f.write("*\n")
 
+def switch_framework(config, chain_name):
+  if config["chain"]["framework"] == "rollkit":
+    logging.debug(f"Switching to rollkit framework: {chain_name}...")
+    run_command(f"""cd {chain_name} && \
+      go mod edit -replace github.com/cosmos/cosmos-sdk=github.com/rollkit/cosmos-sdk@{config["ignite"]["framework"]["versions"]["cosmos-sdk"]} \
+      go mod edit -replace github.com/tendermint/tendermint=github.com/celestiaorg/tendermint@{config["ignite"]["framework"]["versions"]["tendermint"]} \
+      go mod tidy \
+      go mod download \
+    """)
+
 def scaffold_module(config, chain_name):
   module_name = config["module"]["name"]
   logging.debug(f"Scaffolding module '{module_name}'...")
@@ -58,7 +68,6 @@ def scaffold_models(config, chain_name):
     model_attributes = " ".join(model["attributes"])
 
     logging.debug(f"Scaffolding model '{model_name}'...")
-    ############## TODO
     run_command(f"cd {chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
 
     if "events" in model and model["events"] == True:
@@ -138,8 +147,9 @@ def main():
     logging.debug(f"Removing old chain: {chain_name}...")
     run_command(f"rm -rf {chain_name}")
   scaffold_chain(config)
+  switch_framework(config)
   move_and_replace_config(chain_name, config)
-  update_go_mod(chain_name)
+  # update_go_mod(chain_name)
   scaffold_module(config, chain_name)
 
   scaffold_models(config, chain_name)

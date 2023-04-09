@@ -42,17 +42,17 @@ def scaffold_chain(config):
   chain_prefix = config["chain"]["prefix"]
   logging.debug(f"Scaffolding chain '{chain_name}'...")
   run_command(f"ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
-  with open(f"{chain_name}/.gitignore", "w") as f:
-    f.write("*\n")
+  # with open(f"{chain_name}/.gitignore", "w") as f:
+  #   f.write("*\n")
 
 def switch_framework(config, chain_name):
-  if config["chain"]["framework"] == "rollkit":
+  if config["ignite"]["framework"]["type"] == "rollkit":
     logging.debug(f"Switching to rollkit framework: {chain_name}...")
-    run_command(f"""cd {chain_name} && \
-      go mod edit -replace github.com/cosmos/cosmos-sdk=github.com/rollkit/cosmos-sdk@{config["ignite"]["framework"]["versions"]["cosmos-sdk"]} \
-      go mod edit -replace github.com/tendermint/tendermint=github.com/celestiaorg/tendermint@{config["ignite"]["framework"]["versions"]["tendermint"]} \
-      go mod tidy \
-      go mod download \
+    run_command(f"""cd {chain_name} \
+      && go mod edit -replace github.com/cosmos/cosmos-sdk=github.com/rollkit/cosmos-sdk@{config["ignite"]["framework"]["versions"]["cosmos-sdk"]} \
+      && go mod edit -replace github.com/tendermint/tendermint=github.com/celestiaorg/tendermint@{config["ignite"]["framework"]["versions"]["tendermint"]} \
+      && go mod tidy \
+      && go mod download \
     """)
 
 def scaffold_module(config, chain_name):

@@ -52,10 +52,10 @@ def scaffold_chain(config):
   logging.info(f"Scaffolding chain '{chain_name}'...")
   run_command(f"cd build && ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
 
-def switch_framework(config, chain_name):
-  if config["ignite"]["framework"]["type"] == "rollkit":
-    logging.info(f"Switching to rollkit framework: {chain_name}...")
+def update_go_mod(config, chain_name):
+  if config["ignite"]["framework"]["versions"]:
     for key, value in config["ignite"]["framework"]["versions"].items():
+      logging.info(f"Updating go.mod: {key}={value}")
       run_command(f"cd build/{chain_name} && go mod edit -replace {key}={value}")
     run_command(f"""cd build/{chain_name} \
       && go mod tidy \
@@ -69,43 +69,16 @@ def scaffold_modules(config, chain_name):
     logging.info(f"Scaffolding module '{module_name}'...")
     run_command(f"cd build/{chain_name} && ignite scaffold module --yes {module_name} --dep {module_deps}")
 
-  # module_name = config["module"]["name"]
-  # logging.info(f"Scaffolding module '{module_name}'...")
-  # run_command(f"cd build/{chain_name} && ignite scaffold module --yes {module_name} --dep bank,staking")
+    for model in module["models"]:
+      model_type = model["type"]
+      model_name = model["name"]
+      model_attributes = " ".join(model["attributes"])
 
-def scaffold_models(config, chain_name):
+      logging.info(f"Scaffolding model '{model_name}' in module {module_name}...")
+      run_command(f"cd build/{chain_name} && ignite scaffold {model_type} --yes --module {module_name} {model_name} {model_attributes}")
 
-  for model in config["models"]:
-    model_type = model["type"]
-    model_name = model["name"]
-    model_attributes = " ".join(model["attributes"])
-
-    logging.info(f"Scaffolding model '{model_name}'...")
-    run_command(f"cd build/{chain_name} && ignite scaffold {model_type} --yes --module {config['module']['name']} {model_name} {model_attributes}")
-
-    if "events" in model and model["events"] == True:
-      apply_event_template(config, model, chain_name)
-
-def update_go_mod(chain_name):
-  replacements = [
-    ("github.com/cosmos/cosmos-sdk v0.46.3", "github.com/cosmos/cosmos-sdk v0.46.2"),
-    ("github.com/ignite/cli v0.25.1", "github.com/ignite/cli v0.25.0"),
-  ]
-
-  go_mod_path = f"{chain_name}/go.mod"
-  logging.info(f"Updating go.mod: {go_mod_path}...")
-
-  with open(go_mod_path, "r") as go_mod_file:
-    go_mod_content = go_mod_file.read()
-
-  for search, replace in replacements:
-    go_mod_content = go_mod_content.replace(search, replace)
-
-  with open(go_mod_path, "w") as go_mod_file:
-    go_mod_file.write(go_mod_content)
-
-  logging.info(f"Running go mod tidy: {chain_name}...")
-  run_command(f"cd build/{chain_name} && go mod tidy")
+      if "events" in model and model["events"] == True:
+        apply_event_template(config, model, chain_name)
 
 def move_and_replace_config(chain_name, config):
   logging.info(f"Moving and replacing config: build/{chain_name}/config.yml")
@@ -214,11 +187,9 @@ def main():
 
   if options.rescaffold or not os.path.exists(f"build/{chain_name}"):
     scaffold_chain(config)
-    switch_framework(config, chain_name)
+    update_go_mod(config, chain_name)
     move_and_replace_config(chain_name, config)
-    # update_go_mod(chain_name)
     scaffold_modules(config, chain_name)
-    scaffold_models(config, chain_name)
     build(chain_name)
 
   run_command("echo $PATH")

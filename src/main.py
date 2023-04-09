@@ -78,7 +78,7 @@ def scaffold_modules(config, chain_name):
       run_command(f"cd build/{chain_name} && ignite scaffold {model_type} --yes --module {module_name} {model_name} {model_attributes}")
 
       if "events" in model and model["events"] == True:
-        apply_event_template(config, model, chain_name)
+        apply_event_template(module_name, model_name, chain_name)
 
 def move_and_replace_config(chain_name, config):
   logging.info(f"Moving and replacing config: build/{chain_name}/config.yml")
@@ -114,16 +114,16 @@ def start(config, chain_name):
       run_command(f"src/scripts/start.sh {daemon}")
   return
 
-def apply_event_template(config, model, chain_name):
+def apply_event_template(module_name, model_name, chain_name):
 
-  target = f"{chain_name}/x/{config['module']['name']}/keeper/msg_server_{model['name']}.go"
+  target = f"{chain_name}/x/{module_name}/keeper/msg_server_{model_name}.go"
   search = f"""
-	id := k.Append{pascalcase(model['name'])}(
+	id := k.Append{pascalcase(model_name)}(
 		ctx,
-		{camelcase(model['name'])},
+		{camelcase(model_name)},
 	)"""
   insert = f"""
-	ctx.EventManager().EmitTypedEvent(&types.EventCreate{pascalcase(model['name'])}{{
+	ctx.EventManager().EmitTypedEvent(&types.EventCreate{pascalcase(model_name)}{{
 		Id: id,
 	}})"""
 
@@ -134,12 +134,12 @@ def apply_event_template(config, model, chain_name):
     target_file.write(content)
 
   append = f"""
-message EventCreate{pascalcase(model['name'])} {{
+message EventCreate{pascalcase(model_name)} {{
 	uint64 id = 1;
 }}
 """
 
-  target = f"{chain_name}/proto/{config['chain']['name']}/{config['module']['name']}/{model['name']}.proto"
+  target = f"{chain_name}/proto/{chain_name}/{module_name}/{model_name}.proto"
   with open(target, "a") as target_file:
     target_file.write(append)
 

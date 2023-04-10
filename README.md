@@ -105,14 +105,15 @@ Here's a brief explanation of the configuration options:
 - `chain`: Contains configurations related to the blockchain.
   - `name`: The name of the blockchain.
   - `prefix`: The address prefix for the blockchain.
-- `module`: Contains configurations related to the module.
+- `modules`: Contains configurations related to the modules.
   - `name`: The name of the module.
-- `models`: A list of models to be generated.
-  - `name`: The name of the model.
-  - `type`: The type of the model, e.g., "list".
-  - `attributes`: A list of attributes for the model.
-  - `events`: If set to `true`, events will be generated for the model.
-  - `custom_files`: A list of custom files to be included in the model.
+  - `deps`: dependencies of the module.
+  - `models`: A list of models to be generated.
+    - `name`: The name of the model.
+    - `type`: The type of the model, e.g., "list".
+    - `attributes`: A list of attributes for the model.
+    - `events`: If set to `true`, events will be generated for the model.
+    - `custom_files`: A list of custom files to be included in the model.
 
 ### config.yml
 

@@ -33,7 +33,7 @@ Ignite Manager is a project that automates the process of scaffolding, building,
 3. Build and start the Docker image:
 
    ```
-   ./run.sh
+   ./run.sh build.yml
    ```
 
 ## Configuration
@@ -50,33 +50,49 @@ ignite:
   framework:
     type: rollkit
     versions:
-      cosmos-sdk: v0.46.7-rollkit-v0.7.2-no-fraud-proofs
-      tendermint: v0.34.22-0.20221202214355-3605c597500d
+      github.com/cosmos/cosmos-sdk: github.com/rollkit/cosmos-sdk@v0.46.7-rollkit-v0.7.2-no-fraud-proofs
+      github.com/tendermint/tendermint: github.com/celestiaorg/tendermint@v0.34.22-0.20221202214355-3605c597500d
+    # type: cosmos-sdk
+    # versions:
+    #   github.com/cosmos/cosmos-sdk: github.com/cosmos/cosmos-sdk@v0.46.2
+    #   github.com/ignite/cli: github.com/ignite/cli@v0.25.0
+
+manager:
+  start:
+    chain_id: examplechain-0
+    validator_name: examplevalidator
+    key_name: examplevalidator
+  tokens:
+    - symbol: examplesym
 
 chain:
   name: examplechain
-  prefix: mex
+  prefix: ex
 
-module:
-  name: examplemodule
+modules:
+  - name: examplemodule
+    deps:
+      - bank
+      - staking
 
-models:
-  - name: entity_name
-    type: list
-    attributes:
-      - field1:string
-      - field2:int
-    events: true
-    custom_files:
-      - custom_entity.go
+    models:
+      - name: entity_name
+        type: list
+        attributes:
+          - field1:string
+          - field2:int
+        events: true
+        # TODO implement support for custom files
+        # custom_files:
+        #   - custom_entity.go
 
-  - name: resource_name
-    type: list
-    attributes:
-      - owner:string
-      - name:string
-      - category:string
-      - value:int
+      - name: resource_name
+        type: list
+        attributes:
+          - owner:string
+          - name:string
+          - category:string
+          - value:int
 ```
 
 Here's a brief explanation of the configuration options:

@@ -183,7 +183,7 @@ Here's a brief explanation of the configuration options:
 2. Run the `run.sh` script to start the Ignite Manager:
 
    ```
-   ./run.sh
+   ./run.sh build.yml
    ```
 
 3. The script will build your blockchain application based on the provided configurations.

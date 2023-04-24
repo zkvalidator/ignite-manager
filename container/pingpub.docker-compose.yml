@@ -1,5 +1,10 @@
 version: '3'
 
+networks:
+  ignite-manager:
+    driver: bridge
+    external: true
+
 services:
 
   explorer:
@@ -8,6 +13,10 @@ services:
     build:
       context: ..
       dockerfile: container/pingpub.dockerfile
-    network_mode: host
+    # network_mode: host
+    ports:
+      - 8080:8080
     # volumes:
     #   - ../build/pingpub.json:/app/src/chains/mainnet/test.json
+    networks:
+      - ignite-manager

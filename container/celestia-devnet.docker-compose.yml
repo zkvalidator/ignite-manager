@@ -1,11 +1,20 @@
 version: '3'
 
+networks:
+  ignite-manager:
+    driver: bridge
+    external: true
+
 services:
 
-  celestia-devnet:
-    container_name: celestia-devnet
-    image: ghcr.io/celestiaorg/local-celestia-devnet:main
-    # image: celestia-local-devnet
+  local-celestia-devnet:
+    container_name: local-celestia-devnet
+    image: local-celestia-devnet
+    build:
+      context: .
+      dockerfile: celestia-devnet.dockerfile
     ports:
       - "26650:26657"
       - "26659:26659"
+    networks:
+      - ignite-manager

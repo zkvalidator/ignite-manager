@@ -7,6 +7,7 @@ import argparse
 import json
 
 import yaml
+import toml
 from caseconverter import pascalcase, camelcase
 
 logging.basicConfig(level=logging.DEBUG)
@@ -34,8 +35,10 @@ def load_config(config_file):
     logging.debug(f"Configuration loaded: {config}")
     return config
 
-def run_command(command):
-  process = subprocess.Popen(command, shell=True)
+def run_command(command, input_data=None):
+  process = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE)
+  if input_data is not None:
+    process.communicate(input_data.encode())
   process.wait()
   if process.returncode != 0:
     logging.error(f"Error: '{command}' failed with return code {process.returncode}")
@@ -124,8 +127,8 @@ def start_explorer(config, chain_name):
   chain = {
     "chain_name": chain_name,
     "coingecko": "",
-    "api": [f"http://localhost:1317"],
-    "rpc": [f"http://localhost:26657"],
+    "api": [f"http://ignite-manager:1317"],
+    "rpc": [f"http://ignite-manager:26657"],
     "sdk_version": "0.46.7",
     "coin_type": "118",
     "min_tx_fee": "800",
@@ -149,6 +152,15 @@ def start_explorer(config, chain_name):
   # run_command("pwd")
   # run_command("ls -la build/pingpub.json")
   run_command(f"docker compose --file container/pingpub.docker-compose.yml up --build -d")
+  run_command(f"docker compose --file container/pingpub.docker-compose.yml logs -f --tail 100 &")
+
+def deep_update(d, u):
+  for k, v in u.items():
+    if isinstance(v, dict):
+      d[k] = deep_update(d.get(k, {}), v)
+    else:
+      d[k] = v
+  return d
 
 def start(config, chain_name):
 
@@ -161,17 +173,49 @@ def start(config, chain_name):
   if options.erase:
     if config["ignite"]["framework"]["type"] == "rollkit":
       logging.info("Stopping Celestia node...")
-      run_command("docker compose --file container/celestia-devnet.docker-compose.yml down")
+      run_command("docker compose --file container/celestia-devnet.docker-compose.yml down || true")
     logging.info(f"Erasing chain data: {chain_name}...")
     run_command(f"rm -rf ~/.{chain_name}")
-    if config["ignite"]["framework"]["type"] == "rollkit":
-      logging.info(f"Initializing chain: {chain_name}...")
-      run_command(f"src/scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
+
+    # if config["ignite"]["framework"]["type"] == "rollkit":
+    logging.info(f"Initializing chain: {chain_name}...")
+    # run_command(f"src/scripts/init.sh {daemon} {chain_id} {validator_name} {key_name}")
+    logging.debug("Resetting Tendermint...")
+    run_command(f"{daemon} tendermint unsafe-reset-all")
+    logging.debug("Initializing chain...")
+    run_command(f"{daemon} init {validator_name} --chain-id {chain_id}")
+    for key in config["ignite"]["config"]["accounts"]:
+      key_name = key["name"]
+      logging.debug(f"Adding key: {key_name}")
+      if "mnemonic" in key:
+        run_command(f"{daemon} keys add {key_name} --keyring-backend test --recover", input_data=key["mnemonic"])
+      else:
+        run_command(f"{daemon} keys add {key_name} --keyring-backend test")
+      logging.debug(f"Adding genesis account: {key_name}")
+      run_command(f"{daemon} add-genesis-account {key_name} {key['coins'][0]} --keyring-backend test")
+      logging.debug(f"Generating gentx: {key_name}")
+    for validator in config["ignite"]["config"]["validators"]:
+      key_name = validator["name"]
+      run_command(f"mkdir -p /root/.{chain_name}/config/gentx")
+      run_command(f"{daemon} gentx {key_name} {validator['bonded']} --chain-id {chain_id} --keyring-backend test --output-document /root/.{chain_name}/config/gentx/gentx-{key_name}.json")
+    logging.debug("Collecting gentxs...")
+    run_command(f"{daemon} collect-gentxs")
+
+  if "node_config" in config["manager"]:
+    for filename in ["app", "client", "config"]:
+      if filename in config["manager"]["node_config"]:
+        logging.debug(f"Updating {filename}.toml")
+        with open(f"/root/.{chain_name}/config/{filename}.toml", "r") as f:
+          content = f.read()
+        updated = deep_update(toml.loads(content), config["manager"]["node_config"][filename])
+        with open(f"/root/.{chain_name}/config/{filename}.toml", "w") as f:
+          f.write(toml.dumps(updated))
 
   if options.start:
     if config["ignite"]["framework"]["type"] == "rollkit":
       logging.info("Starting Celestia node...")
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
+      run_command("docker compose --file container/celestia-devnet.docker-compose.yml logs -f --tail 100 &") 
       logging.info(f"Starting rollup: {chain_name}...")
       run_command(f"src/scripts/start.sh {daemon}")
 

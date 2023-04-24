@@ -4,8 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pyyaml = "*"
 case-converter = "*"
+pyyaml = "*"
+toml = "*"
 
 [dev-packages]
 

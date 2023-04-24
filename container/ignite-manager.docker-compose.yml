@@ -1,5 +1,10 @@
 version: '3'
 
+networks:
+  ignite-manager:
+    driver: bridge
+    external: true
+
 services:
 
   ignite-manager:
@@ -14,5 +19,11 @@ services:
       - ../go_root:/go
     environment:
       - CONFIG_FILE
-    network_mode: host
+    ports:
+      - "1317:1317" # rest
+      - "9090:9090" # prometheus
+      - "26656:26656" # p2p
+      - "26657:26657" # rpc
+    networks:
+      - ignite-manager
     

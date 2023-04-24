@@ -17,6 +17,16 @@ manager:
     key_name: examplevalidator
   tokens:
     - symbol: examplesym
+  node_config:
+    config:
+      rpc:
+        laddr: tcp://0.0.0.0:26657
+    app:
+      api:
+        enable: true
+        swagger: true
+        address: tcp://0.0.0.0:1317
+        max-open-connections: 1000
 
 chain:
   name: examplechain

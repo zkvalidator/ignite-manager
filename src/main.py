@@ -254,7 +254,7 @@ def parse_args():
     "-x",
     "--explorer",
     help="Start the explorer",
-    default=True,
+    default=False,
   )
 
   options = parser.parse_args()

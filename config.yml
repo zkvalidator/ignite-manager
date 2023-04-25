@@ -2,10 +2,14 @@ version: 1
 
 accounts:
   - name: alice
-    coins: ["20000token", "200000000stake"]
+    coins:
+      - 200000000stake
+      - 20000stake
     mnemonic: winter blur imitate this open palace reward steel local noodle believe into evil other rebuild ready fuel someone body capital review mixture absurd seminar
   - name: bob
-    coins: ["10000token", "100000000stake"]
+    coins:
+      - 100000000stake
+      - 10000stake
     mnemonic: mammal artist elbow chaos oak gym practice oblige local decrease fetch boat inner same artist veteran catalog cannon fat forest tail boat must observe
 
 validators:

@@ -54,7 +54,7 @@ def scaffold_chain(config):
     run_command(f"rm -rf build/{chain_name}")
 
   logging.info(f"Scaffolding chain '{chain_name}'...")
-  run_command(f"cd build && ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
+  run_command(f"cd build && ignite scaffold chain -buildvcs=false {chain_name} --no-module --address-prefix {chain_prefix}")
 
 def update_go_mod(config, chain_name):
   if config["ignite"]["framework"]["versions"]:
@@ -71,7 +71,7 @@ def scaffold_modules(config, chain_name):
     module_name = module["name"]
     module_deps = ",".join(module["deps"])
     logging.info(f"Scaffolding module '{module_name}'...")
-    run_command(f"cd build/{chain_name} && ignite scaffold module --yes {module_name} --dep {module_deps}")
+    run_command(f"cd build/{chain_name} && ignite scaffold module -buildvcs=false --yes {module_name} --dep {module_deps}")
 
     for model in module["models"]:
       model_type = model["type"]
@@ -79,7 +79,7 @@ def scaffold_modules(config, chain_name):
       model_attributes = " ".join(model["attributes"])
 
       logging.info(f"Scaffolding model '{model_name}' in module {module_name}...")
-      run_command(f"cd build/{chain_name} && ignite scaffold {model_type} --yes --module {module_name} {model_name} {model_attributes}")
+      run_command(f"cd build/{chain_name} && ignite scaffold -buildvcs=false {model_type} --yes --module {module_name} {model_name} {model_attributes}")
 
       if "events" in model and model["events"] == True:
         apply_event_template(module_name, model_name, chain_name)
@@ -121,7 +121,7 @@ def move_and_replace_config(chain_name, config):
 
 def build(chain_name):
   logging.info(f"Building chain: {chain_name}...")
-  run_command(f"cd build/{chain_name} && ignite chain build")
+  run_command(f"cd build/{chain_name} && ignite chain build -buildvcs=false")
 
 def start_explorer(config, chain_name):
   chain = {

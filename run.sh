@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-  $1 = "build.yml"
+  $1="build.yml"
 fi
 
 COMPOSE_FILE="container/ignite-manager.docker-compose.yml"

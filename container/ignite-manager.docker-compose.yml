@@ -19,6 +19,7 @@ services:
       - ../go_root:/go
     environment:
       - CONFIG_FILE
+      - GOFLAGS='-buildvcs=false'
     ports:
       - "1317:1317" # rest
       - "9090:9090" # prometheus

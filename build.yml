@@ -1,4 +1,5 @@
 ignite:
+  version: 12d3491
   config: !include config.yml
   framework:
     type: rollkit

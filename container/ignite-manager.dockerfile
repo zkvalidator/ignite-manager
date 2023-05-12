@@ -11,7 +11,22 @@ RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 
 RUN curl -fsSL get.docker.com | bash
-RUN curl https://get.ignite.com/cli! | bash
+
+WORKDIR /app
+# RUN git clone https://github.com/ignite/cli ignite-cli --depth=1
+RUN git clone https://github.com/ignite/cli ignite-cli
+WORKDIR /app/ignite-cli
+RUN git fetch
+ARG config_ignite_version
+ENV IGNITE_VERSION=${config_ignite_version}
+RUN git checkout ${IGNITE_VERSION}
+RUN make install
+RUN cp /go/bin/ignite /usr/local/bin/ignite
+# RUN env && exit 1
+# RUN find / -name ignite && exit 1
+
+# https://github.com/ignite/installer#usage
+# RUN curl https://get.ignite.com/cli@${IGNITE_VERSION}! | bash
 
 WORKDIR /app
 

@@ -11,6 +11,8 @@ services:
     build:
       context: ..
       dockerfile: container/ignite-manager.dockerfile
+      args:
+        - config_ignite_version=${config_ignite_version}
     image: ignite-manager
     container_name: ignite-manager
     volumes:
@@ -18,7 +20,7 @@ services:
       - ..:/app
       - ../go_root:/go
     environment:
-      - CONFIG_FILE
+      - config_path
       - GOFLAGS=-buildvcs=false
     ports:
       - "1317:1317" # rest

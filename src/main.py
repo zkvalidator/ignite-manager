@@ -54,7 +54,7 @@ def scaffold_chain(config):
     run_command(f"rm -rf build/{chain_name}")
 
   logging.info(f"Scaffolding chain '{chain_name}'...")
-  run_command(f"cd build && ignite scaffold chain {chain_name} --no-module --address-prefix {chain_prefix}")
+  run_command(f"cd build && ignite scaffold chain {chain_name} --skip-git --no-module --address-prefix {chain_prefix}")
 
 def update_go_mod(config, chain_name):
   if config["ignite"]["framework"]["versions"]:
@@ -219,6 +219,10 @@ def start(config, chain_name):
       logging.info(f"Starting rollup: {chain_name}...")
       run_command(f"src/scripts/start.sh {daemon}")
 
+def info():
+  run_command("env")
+  run_command("ignite version")
+
 def parse_args():
   parser = argparse.ArgumentParser(description="Ignite Manager Script")
 
@@ -265,6 +269,8 @@ def main():
   options = parse_args()
   config_file = options.config
   config = load_config(config_file)
+
+  info()
 
   chain_name = config["chain"]["name"]
 

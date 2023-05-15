@@ -30,6 +30,8 @@ eval $(parse_yaml $config_path "config_")
 
 export config_ignite_version="${config_ignite_version}"
 echo "ignite version: $config_ignite_version"
+export arguments="${@:2}"
+echo "arguments: $arguments"
 
 COMPOSE_FILE="container/ignite-manager.docker-compose.yml"
 

@@ -43,6 +43,7 @@ def run_command(command, input_data=None):
   if process.returncode != 0:
     logging.error(f"Error: '{command}' failed with return code {process.returncode}")
     sys.exit(1)
+  return process.communicate()[0]
 
 def scaffold_chain(config):
 
@@ -217,10 +218,11 @@ def start(config, chain_name):
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml logs -f --tail 100 &") 
       logging.info(f"Starting rollup: {chain_name}...")
-      run_command(f"src/scripts/start.sh {daemon}")
+      run_command(f"src/scripts/start.sh {daemon} {options.namespace} {options.bridge_address} {options.app_address}")
 
 def info():
   run_command("env")
+  run_command("go version")
   run_command("ignite version")
 
 def parse_args():
@@ -231,6 +233,27 @@ def parse_args():
     "--config",
     help="Path to the configuration file",
     default="build.yml",
+  )
+
+  parser.add_argument(
+    "-b",
+    "--bridge-address",
+    help="Node on which to deploy (rollups only)",
+    default="http://local-celestia-devnet",
+  )
+
+  parser.add_argument(
+    "-a",
+    "--app-address",
+    help="Node on which to deploy (rollups only)",
+    default="http://local-celestia-devnet",
+  )
+
+  parser.add_argument(
+    "-n",
+    "--namespace",
+    help="Namespace to use",
+    default=None,
   )
 
   parser.add_argument(

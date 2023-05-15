@@ -29,4 +29,5 @@ services:
       - "26657:26657" # rpc
     networks:
       - ignite-manager
+    command: ${arguments}
     

@@ -46,6 +46,7 @@ The project uses two main configuration files: `build.yml` and `config.yml`.
 
 ```yaml
 ignite:
+  version: 12d3491
   config: !include config.yml
   framework:
     type: rollkit
@@ -64,6 +65,16 @@ manager:
     key_name: examplevalidator
   tokens:
     - symbol: examplesym
+  node_config:
+    config:
+      rpc:
+        laddr: tcp://0.0.0.0:26657
+    app:
+      api:
+        enable: true
+        swagger: true
+        address: tcp://0.0.0.0:1317
+        max-open-connections: 1000
 
 chain:
   name: examplechain

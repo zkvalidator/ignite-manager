@@ -1,0 +1,26 @@
+version: '3'
+
+networks:
+  ignite-manager:
+    driver: bridge
+    external: true
+
+services:
+
+  ethermint:
+    container_name: ethermint
+    image: ethermint
+    build:
+      context: .
+      dockerfile: ethermint.dockerfile
+    environment:
+      RPCHOST: local-bitcoin-devnet
+      RPCPORT: 18332
+      # RPCPORT: 18443
+      RPCUSER: rpcuser
+      RPCPASS: rpcpass
+    # ports:
+    #   - 18332:18332
+    networks:
+      - ignite-manager
+

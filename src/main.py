@@ -215,10 +215,30 @@ def start(config, chain_name):
   if options.start:
     if config["ignite"]["framework"]["type"] == "rollkit":
       logging.info("Starting Celestia node...")
-      run_command("docker compose --file container/celestia-devnet.docker-compose.yml up -d")
+      run_command("docker compose --file container/celestia-devnet.docker-compose.yml up --build -d")
       run_command("docker compose --file container/celestia-devnet.docker-compose.yml logs -f --tail 100 &") 
       logging.info(f"Starting rollup: {chain_name}...")
       run_command(f"src/scripts/start.sh {daemon} {options.namespace} {options.bridge_address} {options.app_address}")
+
+def start_ethermint(config):
+
+  import signal
+
+  def signal_handler(sig, frame):
+    logging.info("Stopping Ethermint...")
+    run_command("docker compose --file container/ethermint.docker-compose.yml down")
+    run_command("docker compose --file container/bitcoin-devnet.docker-compose.yml down")
+    sys.exit(0)
+  signal.signal(signal.SIGINT, signal_handler)
+
+  import time
+  run_command("docker compose --file container/bitcoin-devnet.docker-compose.yml up --build -d")
+  run_command("docker compose --file container/bitcoin-devnet.docker-compose.yml logs -f --tail 100 &")
+  time.sleep(5)
+  run_command("docker compose --file container/ethermint.docker-compose.yml up --build -d")
+  run_command("docker compose --file container/ethermint.docker-compose.yml logs -f --tail 100 &")
+  while True:
+    time.sleep(1)
 
 def info():
   run_command("env")
@@ -297,17 +317,20 @@ def main():
 
   chain_name = config["chain"]["name"]
 
-  if options.rescaffold or not os.path.exists(f"build/{chain_name}"):
-    scaffold_chain(config)
-    update_go_mod(config, chain_name)
-    move_and_replace_config(chain_name, config)
-    scaffold_modules(config, chain_name)
-    build(chain_name)
+  if config['ignite']['framework']['type'] in ['cosmos-sdk', 'rollkit']:
+    if options.rescaffold or not os.path.exists(f"build/{chain_name}"):
+      scaffold_chain(config)
+      update_go_mod(config, chain_name)
+      move_and_replace_config(chain_name, config)
+      scaffold_modules(config, chain_name)
+      build(chain_name)
+    start(config, chain_name)
+  else:
+    start_ethermint(config)
 
   if options.explorer:
     start_explorer(config, chain_name)
 
-  start(config, chain_name)
 
 if __name__ == "__main__":
   logging.info('Starting...')

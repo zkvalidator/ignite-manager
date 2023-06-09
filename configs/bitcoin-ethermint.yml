@@ -1,0 +1,63 @@
+ignite:
+  version: 12d3491
+  config: !include config.yml
+  framework:
+    type: ethermint
+    settlement:
+      type: bitcoin
+      # host: http://local-bitcoin-devnet
+      # port: 18332
+      chain: regtest
+      # rpc:
+      #   user: rpcuser
+      #   pass: rpcpass
+    # versions:
+    #   ethermint: github.com/celestiaorg/ethermint@bitcoin-da
+
+manager:
+  start:
+    chain_id: examplechain-0
+    validator_name: examplevalidator
+    key_name: examplevalidator
+  tokens:
+    - symbol: examplesym
+  node_config:
+    config:
+      rpc:
+        laddr: tcp://0.0.0.0:26657
+    app:
+      api:
+        enable: true
+        swagger: true
+        address: tcp://0.0.0.0:1317
+        max-open-connections: 1000
+
+chain:
+  name: examplechain
+  prefix: ex
+
+modules:
+  - name: examplemodule
+    deps:
+      - bank
+      - staking
+
+    models:
+      - name: entity_name
+        type: list
+        attributes:
+          - field1:string
+          - field2:int
+        events: true
+        # TODO implement support for custom files
+        # custom_files:
+        #   - custom_entity.go
+
+      - name: resource_name
+        type: list
+        attributes:
+          - owner:string
+          - name:string
+          - category:string
+          - value:int
+

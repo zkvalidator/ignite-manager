@@ -1,0 +1,25 @@
+version: '3'
+
+networks:
+  ignite-manager:
+    driver: bridge
+    external: true
+
+services:
+
+  local-bitcoin-devnet:
+    container_name: local-bitcoin-devnet
+    image: local-bitcoin-devnet
+    build:
+      context: .
+      dockerfile: bitcoin-devnet.dockerfile
+    environment:
+      CHAIN: regtest
+      RPCPORT: 18332
+      # RPCPORT: 18443
+      RPCUSER: rpcuser
+      RPCPASS: rpcpass
+    ports:
+      - 18332:18332
+    networks:
+      - ignite-manager

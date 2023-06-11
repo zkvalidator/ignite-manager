@@ -1,0 +1,13 @@
+{
+  "name": "zk-vote",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "etherlime": "^2.3.5",
+    "snarkjs": "^0.7.0",
+    "web3": "^4.0.1"
+  }
+}

@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+
+  zk_vote:
+    container_name: zk_vote
+    image: zk_vote
+    build:
+      context: .
+      dockerfile: zk-vote.containerfile
+    volumes:
+      - ./:/app

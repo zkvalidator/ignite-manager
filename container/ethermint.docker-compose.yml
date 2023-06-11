@@ -19,8 +19,24 @@ services:
       # RPCPORT: 18443
       RPCUSER: rpcuser
       RPCPASS: rpcpass
-    # ports:
-    #   - 18332:18332
+    ports:
+      - 8545:8545
     networks:
       - ignite-manager
+
+  ethereum-explorer:
+    container_name: ethereum-explorer
+    image: ethereum-explorer
+    build:
+      context: .
+      dockerfile: ethereum-explorer.dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8002
+      REACT_APP_ETH_RPC_URL: http://localhost:8545
+    ports:
+      - 8002:8002
+    stdin_open: true
+    # networks:
+    #   - ignite-manager
 

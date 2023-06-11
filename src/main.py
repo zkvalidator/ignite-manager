@@ -237,6 +237,9 @@ def start_ethermint(config):
   time.sleep(5)
   run_command("docker compose --file container/ethermint.docker-compose.yml up --build -d")
   run_command("docker compose --file container/ethermint.docker-compose.yml logs -f --tail 100 &")
+
+  # run_command("docker exec -it ethermint 'ethermintd keys unsafe-export-eth-key mykey --keyring-backend test'")
+
   while True:
     time.sleep(1)
 

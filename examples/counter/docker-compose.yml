@@ -1,0 +1,23 @@
+version: '3'
+
+networks:
+  ignite-manager:
+    driver: bridge
+    external: true
+
+services:
+
+  deploy-counter:
+    container_name: deploy-counter
+    image: deploy-counter
+    build:
+      context: .
+      dockerfile: counter.containerfile
+    environment:
+      RPC_ENDPOINT: http://ethermint:8545
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ignite-manager
+    ports:
+      - 9000:9000

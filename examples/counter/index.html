@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.0.0-beta.34/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Counter</h1>
+        <label>Contract ABI:</label>
+        <textarea v-model="contractABI" rows="10" cols="50"></textarea>
+        <br>
+        <label>Contract Address:</label>
+        <input v-model="contractAddress" type="text">
+        <br>
+        <button @click="connectMetamask">Connect to MetaMask</button>
+        <br>
+        <button v-if="connected" @click="incrementCounter">Increment</button>
+        <button v-if="connected" @click="decrementCounter">Decrement</button>
+        <p>Count: <span>{{ count }}</span></p>
+    </div>
+
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                connected: false,
+                contractABI: '',
+                contractAddress: '',
+                count: 0
+            },
+            methods: {
+                parseABI() {
+                    try {
+                        const parsedABI = JSON.parse(this.contractABI);
+                        return parsedABI;
+                    } catch (err) {
+                        alert("Invalid ABI.");
+                        return null;
+                    }
+                },
+                connectMetamask() {
+                    if (typeof window.ethereum !== "undefined") {
+                        const web3 = new Web3(window.ethereum);
+                        window.ethereum.enable()
+                            .then(accounts => {
+                                const parsedABI = this.parseABI();
+                                if (parsedABI) {
+                                    const contract = new web3.eth.Contract(parsedABI, this.contractAddress);
+                                    this.connected = true;
+                                    this.incrementCounter = () => {
+                                        contract.methods.incrementCounter().send({ from: accounts[0] })
+                                            .then(this.refreshCounterDisplay(contract));
+                                    };
+                                    this.decrementCounter = () => {
+                                        contract.methods.decrementCounter().send({ from: accounts[0] })
+                                            .then(this.refreshCounterDisplay(contract));
+                                    };
+                                    this.refreshCounterDisplay(contract);
+                                }
+                            })
+                            .catch(err => {
+                                console.log("Error: ", err);
+                            });
+                    } else {
+                        alert("Ethereum provider not found. Please install MetaMask.");
+                    }
+                },
+                refreshCounterDisplay(contract) {
+                    contract.methods.getCount().call()
+                        .then(count => {
+                            this.count = count;
+                        });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

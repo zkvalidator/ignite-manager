@@ -17,6 +17,12 @@ echo $DA_CONFIG | jq
 #   sleep 1
 # done
 
+sed -i 's/api = .*/api = "eth,net,web3,personal"/' /root/.ethermintd/config/app.toml
+
+ethermintd keys add alice --keyring-backend test --algo eth_secp256k1
+ethermintd keys add bob --keyring-backend test --algo eth_secp256k1
+ethermintd keys add charlie --keyring-backend test --algo eth_secp256k1
+
 ethermintd start \
   --rollkit.aggregator true \
   --rollkit.da_layer bitcoin \
